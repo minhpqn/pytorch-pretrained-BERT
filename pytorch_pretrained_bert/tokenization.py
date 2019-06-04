@@ -74,7 +74,7 @@ def whitespace_tokenize(text):
 class BertTokenizer(object):
     """Runs end-to-end tokenization: punctuation splitting + wordpiece"""
 
-    def __init__(self, vocab_file, do_lower_case=True, max_len=None, do_basic_tokenize=True,
+    def __init__(self, vocab_file, do_lower_case=True, max_len=None, do_basic_tokenize=True, kyoto_bert=False,
                  never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]")):
         """Constructs a BertTokenizer.
 
@@ -100,7 +100,8 @@ class BertTokenizer(object):
         self.do_basic_tokenize = do_basic_tokenize
         if do_basic_tokenize:
           self.basic_tokenizer = BasicTokenizer(do_lower_case=do_lower_case,
-                                                never_split=never_split)
+                                                never_split=never_split,
+                                                kyoto_bert=kyoto_bert)
         self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab)
         self.max_len = max_len if max_len is not None else int(1e12)
 
@@ -202,7 +203,7 @@ class BasicTokenizer(object):
     """Runs basic tokenization (punctuation splitting, lower casing, etc.)."""
 
     def __init__(self,
-                 do_lower_case=True,
+                 do_lower_case=True, kyoto_bert=False,
                  never_split=("[UNK]", "[SEP]", "[PAD]", "[CLS]", "[MASK]")):
         """Constructs a BasicTokenizer.
 
@@ -210,6 +211,7 @@ class BasicTokenizer(object):
           do_lower_case: Whether to lower case the input.
         """
         self.do_lower_case = do_lower_case
+        self.kyoto_bert=kyoto_bert
         self.never_split = never_split
 
     def tokenize(self, text):
@@ -221,7 +223,10 @@ class BasicTokenizer(object):
         # and generally don't have any Chinese data in them (there are Chinese
         # characters in the vocabulary because Wikipedia does have some Chinese
         # words in the English Wikipedia.).
-        text = self._tokenize_chinese_chars(text)
+        if not self.kyoto_bert:
+            text = self._tokenize_chinese_chars(text)
+        else:
+            print('Use kyoto bert! text must be tokenized by juman++.')
         orig_tokens = whitespace_tokenize(text)
         split_tokens = []
         for token in orig_tokens:
