@@ -226,7 +226,7 @@ class BasicTokenizer(object):
         if not self.kyoto_bert:
             text = self._tokenize_chinese_chars(text)
         else:
-            print('Use kyoto bert! text must be tokenized by juman++.')
+            pass
         orig_tokens = whitespace_tokenize(text)
         split_tokens = []
         for token in orig_tokens:
